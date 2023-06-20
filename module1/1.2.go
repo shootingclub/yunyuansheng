@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -16,12 +17,22 @@ func Queue() {
 }
 
 func produce(queue chan int) {
-	for i := 0; i < 10; i++ {
-		queue <- i
-		fmt.Println("生产者", i)
-		time.Sleep(time.Second)
+	defer func() {
+		if r := recover(); r == nil {
+			fmt.Errorf("%s", "produce to panic")
+			produce(queue)
+		}
+	}()
+	ticker := time.NewTicker(time.Second * 1)
+	for {
+		select {
+		case <-ticker.C:
+			rand.Seed(time.Now().UnixNano())
+			data := rand.Intn(100)
+			queue <- data
+			fmt.Println("生产者", data)
+		}
 	}
-
 }
 func consumer(queue chan int) {
 	for data := range queue {
