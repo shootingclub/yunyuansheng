@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", handleInterceptor(httpAccessFunc))
+	http.HandleFunc("/", handleInterceptor(httpRootFunc))
 	http.HandleFunc("/health", handleInterceptor(healthFunc))
 	err := http.ListenAndServe(":8999", nil)
 	if err != nil {
@@ -24,7 +24,7 @@ func healthFunc(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func httpAccessFunc(w http.ResponseWriter, r *http.Request) {
+func httpRootFunc(w http.ResponseWriter, r *http.Request) {
 	//request header写入response header
 	//if len(r.Header) > 0 {
 	//	for k, v := range r.Header {
