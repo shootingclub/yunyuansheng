@@ -50,8 +50,8 @@ func (queue *Queue) consumer() {
 		// 是否满了
 		if cap(queue.q) == len(queue.q) {
 			for data := range queue.q { //消费
+				time.Sleep(time.Second)
 				if len(queue.q) != 0 {
-					time.Sleep(time.Second)
 					fmt.Println("消费者", data)
 				} else { // 消费完了
 					fmt.Println("消费完成 开始生产")

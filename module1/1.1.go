@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func main() {
 	Question1()
+	fmt.Println(int(time.Duration(900) * time.Second))
+
 }
 
 func Question1() {
