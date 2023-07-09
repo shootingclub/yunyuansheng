@@ -9,15 +9,15 @@ containerId=$(kubectl get pod -n default | grep "Running" | awk '{print $1 }')
 kubectl exec -it $containerId -n default bash -- ps -ef
 kubectl exec -it $containerId -n default bash -- cat /etc/envoy/envoy.yaml
 
-echo "list envoy net config and request "
+echo "show envoy net config and mock request "
 kubectl get svc -owide | grep "envoy"
 ip=$(kubectl get svc -owide | grep "envoy"| awk '{print $3 }')
-port=$(kubectl get svc -owide | grep "envoy" | awk '{print $5 }')
-port=${port%:*}
+tcp_ip=$(kubectl get svc -owide | grep "envoy" | awk '{print $5 }')
+port=${tcp_ip%:*}
 echo $ip:$port
 curl $ip:$port -w '\n'
 
-echo "update envoy port 23456 and request net "
+echo "update deployment envoy set port 23456 and show net config "
 kubectl delete configmaps envoy-config
 cd update
 kubectl create configmap envoy-config --from-file=envoy.yaml
