@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap-phpldapadmin
+  namespace: open-ldap
+  labels:
+    app: ldap-phpldapadmin
+  annotations:
+    app.kubernetes.io/alias-name: LDAP
+    app.kubernetes.io/description: LDAP后台页面
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap-phpldapadmin
+  template:
+    metadata:
+      labels:
+        app: ldap-phpldapadmin
+    spec:
+      nodeName: k8s-node1
+      nodeSelector:
+        openldap: "true"
+      containers:
+        - name: phpldapadmin
+          image: "osixia/phpldapadmin:stable"
+          ports:
+            - name: tcp-80
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: PHPLDAPADMIN_HTTPS
+              value: 'false'
+            - name: PHPLDAPADMIN_LDAP_HOSTS
+              value: openldap-svc
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ldap-phpldapadmin-svc
+  namespace: open-ldap
+  labels:
+    app: ldap-phpldapadmin-svc
+spec:
+  type: NodePort
+  ports:
+    - name: tcp-80
+      port: 80
+      protocol: TCP
+      targetPort: 80
+      nodePort: 30080
+  selector:
+    app: ldap-phpldapadmin

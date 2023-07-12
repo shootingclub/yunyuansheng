@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openldap
+  namespace: open-ldap
+  labels:
+    app: openldap
+  annotations:
+    app.kubernetes.io/alias-name: LDAP
+    app.kubernetes.io/description: 认证中心
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openldap
+  template:
+    metadata:
+      labels:
+        app: openldap
+    spec:
+      nodeName: k8s-node1
+      nodeSelector:
+        openldap: "true"
+      volumes:
+        - name: ldap-data
+          hostPath:
+            path: /opt/openldap/data/
+        - name: ldap-config
+          hostPath:
+            path: /opt/openldap/config/
+        - name: openldap-init
+          configMap:
+            name: openldap-init
+      containers:
+        - name: openldap
+          args:
+            - --copy-service
+          image: "docker.mirrors.sjtug.sjtu.edu.cn/osixia/openldap:1.4.0"
+          securityContext:
+            # 设置以ROOT用户运行容器
+            runAsUser: 0
+            privileged: true
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            # 配置LDAP组织名称 登录账号为 cn=admin,dc=mrchi,dc=com
+            - name: LDAP_ORGANISATION
+              value: "yyj"
+            # 配置 LDAP 域名
+            - name: LDAP_DOMAIN
+              value: "yyj.com"
+            #  LDAP 密码
+            - name: LDAP_ADMIN_PASSWORD
+              value: "123456"
+            - name: LDAP_CONFIG_PASSWORD
+              value: "123456"
+            - name: LDAP_BACKEND
+              value: mdb
+          ports:
+            - name: tcp-389
+              containerPort: 389
+              protocol: TCP
+            - name: tcp-636
+              containerPort: 636
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - name: ldap-config
+              mountPath: "/etc/ldap/slapd.d"
+            - name: ldap-data
+              mountPath: "/var/lib/ldap"
+            - name: openldap-init
+              mountPath: /home/k8s/ldap/init.ldif
+              subPath: init.ldif
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap-svc
+  namespace: open-ldap
+  labels:
+    app: openldap-svc
+spec:
+  ports:
+    - name: tcp-389
+      port: 389
+      protocol: TCP
+      targetPort: 389
+    - name: tcp-636
+      port: 636
+      protocol: TCP
+      targetPort: 636
+  selector:
+    app: openldap
