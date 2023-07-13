@@ -18,8 +18,16 @@ spec:
       containers:
         - name: jenkins
           image: jenkins/jenkins:lts-jdk11
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            # 设置以ROOT用户运行容器
+            runAsUser: 0
+            privileged: true
           ports:
-            - containerPort: 8099
+            - containerPort: 8080
+              name: http
+            - containerPort: 50000
+              name: jenkins-agent
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
@@ -38,8 +46,13 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8099
-      targetPort: 8099
-      nodePort: 30099
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30009
+    - name: jenkins-agent
+      port: 50000
+      targetPort: 50000
+      nodePort: 30010
   selector:
     app: jenkins

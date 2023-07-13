@@ -43,7 +43,7 @@ spec:
           env:
             - name: TZ
               value: Asia/Shanghai
-            # 配置LDAP组织名称 登录账号为 cn=admin,dc=mrchi,dc=com
+            # 配置LDAP组织名称 登录账号为 cn=zyh,cn=admin,dc=mrchi,dc=com
             - name: LDAP_ORGANISATION
               value: "yyj"
             # 配置 LDAP 域名
