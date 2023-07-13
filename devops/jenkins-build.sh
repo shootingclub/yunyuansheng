@@ -1,5 +1,5 @@
 echo "create namespace jenkins "
-kubectl create ns jenkins
+kubectl create ns devops
 echo  "labeling one of nodes"
 nodeName=$(kubectl get node  | grep "<none>" | awk 'NR==1' | awk '{print $1 }')
 kubectl label node $nodeName openldap: "true"
