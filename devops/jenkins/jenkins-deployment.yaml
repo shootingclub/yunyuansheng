@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jenkins
-  namespace: jenkins
+  namespace: devops
 spec:
   replicas: 1
   selector:
@@ -17,7 +17,7 @@ spec:
         openldap: "true"
       containers:
         - name: jenkins
-          image: jenkins/jenkins:lts-jdk11
+          image: jenkins/jenkins:2.372
           imagePullPolicy: IfNotPresent
           securityContext:
             # 设置以ROOT用户运行容器
