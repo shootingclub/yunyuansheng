@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: swagger
+  name: swagger
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swagger
+  template:
+    metadata:
+      labels:
+        app: swagger
+    spec:
+      containers:
+        - image: harbocto.boe.com.cn/public/swagger-ui
+          imagePullPolicy: IfNotPresent
+          name: swagger
+          volumeMounts:
+            - mountPath: /home/k8s/k8s-swagger/k8s-swagger.json
+              name: k8s-swagger
+              subPath: k8s-swagger.json
+      volumes:
+        - name: k8s-swagger
+          configMap:
+            name: k8s-swagger
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: swagger
+  name: swagger
+  namespace: kube-system
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+      nodePort: 30001
+  selector:
+    app: swagger
+  type: NodePort
